@@ -1,0 +1,2 @@
+[console_scripts]
+krescope = recommender.cli:cli

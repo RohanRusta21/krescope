@@ -1,0 +1,12 @@
+README.md
+setup.py
+k8s_recommender.egg-info/PKG-INFO
+k8s_recommender.egg-info/SOURCES.txt
+k8s_recommender.egg-info/dependency_links.txt
+k8s_recommender.egg-info/entry_points.txt
+k8s_recommender.egg-info/requires.txt
+k8s_recommender.egg-info/top_level.txt
+recommender/__init__.py
+recommender/analyzer.py
+recommender/cli.py
+recommender/k8s_client.py
