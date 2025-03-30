@@ -1,0 +1,5 @@
+click>=8.0.0
+kubernetes>=12.0.0
+pandas>=1.0.0  # For data analysis
+python-dotenv  # For config
+rich           # Pretty console output
