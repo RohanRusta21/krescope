@@ -1,3 +1,4 @@
-click
-kubernetes
-rich
+click>=8.0
+kubernetes>=24.0
+rich>=13.0
+typing-extensions>=4.0

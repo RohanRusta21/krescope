@@ -1,42 +1,81 @@
-# cli.py (partial update)
-def analyze(namespace, output, verbose):
-    k8s = K8sClient()
-    try:
-        metrics = k8s.get_pod_metrics(namespace)
-    except MetricsServerNotInstalled:
-        console.print("[red]Error:[/red] Metrics server not installed in cluster")
-        if verbose:
-            console.print("Install metrics server with: kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml")
-        return
-        
-    pods = k8s.get_pods(namespace)
-    recommendations = [ResourceAnalyzer.analyze_pod(pod, metrics.get(pod.metadata.name, {})) 
-                     for pod in pods]
-    
-    if output == "json":
-        console.print_json(data=recommendations)
-    else:
-        _print_human_output(recommendations, verbose)
+from typing import List, Dict
+from datetime import datetime
+import click
+from rich.console import Console
+from rich.table import Table
+from rich.box import SIMPLE
+from .analyzer import ResourceAnalyzer
+from .k8s_client import K8sClient
+from .exceptions import MetricsServerNotInstalled, KrescopeError
+from .models import PodRecommendation
 
-def _print_human_output(recommendations: List[Dict], verbose: bool):
-    console.print(f"\n[bold]Resource Optimization Recommendations[/bold]")
+console = Console()
+
+@click.group()
+def cli():
+    """K8s Resource Recommender - Optimize your Kubernetes resources."""
+    pass
+
+@cli.command()
+@click.option("--namespace", default="default", help="Namespace to analyze")
+@click.option("--output", type=click.Choice(["text", "json"]), default="text")
+@click.option("--verbose", is_flag=True, help="Show detailed information")
+def analyze(namespace, output, verbose):
+    """Analyze resource usage and suggest optimizations."""
+    try:
+        k8s = K8sClient()
+        recommendations = ResourceAnalyzer.analyze_namespace(k8s, namespace)
+        
+        if output == "json":
+            console.print_json(data=recommendations)
+        else:
+            _print_human_output(recommendations, verbose)
+            
+    except MetricsServerNotInstalled:
+        console.print("[red]Error:[/red] Metrics server not installed in cluster", style="bold")
+        console.print("Install it with: kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml")
+    except KrescopeError as e:
+        console.print(f"[red]Error:[/red] {str(e)}", style="bold red")
+        if verbose:
+            import traceback
+            console.print(traceback.format_exc())
+
+def _print_human_output(recommendations: List[PodRecommendation], verbose: bool):
+    """Pretty-print recommendations using Rich."""
+    console.print(f"\n[bold]Kubernetes Resource Recommendations[/bold]")
     console.print(f"[dim]Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/dim]")
     
+    if not recommendations:
+        console.print("[yellow]No pods found in namespace[/yellow]")
+        return
+    
+    table = Table(box=SIMPLE, show_header=True, header_style="bold magenta")
+    table.add_column("Pod")
+    table.add_column("Container")
+    table.add_column("CPU Request")
+    table.add_column("CPU Recommend")
+    table.add_column("Memory Request")
+    table.add_column("Memory Recommend")
+    
     for pod in recommendations:
-        console.print(f"\n[cyan]Pod:[/cyan] {pod['name']}")
-        
-        for warning in pod.get('warnings', []):
-            console.print(f"  [yellow]⚠ {warning}[/yellow]")
-            
         for container in pod['containers']:
-            console.print(f"  [bold]Container:[/bold] {container['name']}")
-            
-            # CPU Output
             cpu = container['cpu']
-            console.print(f"    [bold]CPU:[/bold]")
-            console.print(f"      Current: {cpu['current_request']} request, {cpu['current_limit']} limit")
-            console.print(f"      Usage:   {cpu['current_usage']}")
-            console.print(f"      [green]Recommend:[/green] {cpu['recommended_request']} (save {cpu['savings_percent']})")
+            memory = container.get('memory', {})  # Safe get for memory
             
-            if verbose and cpu['limit_to_request_ratio']:
-                console.print(f"      [dim]Limit/Request Ratio: {cpu['limit_to_request_ratio']}[/dim]")
+            table.add_row(
+                pod['name'],
+                container['name'],
+                f"{cpu.get('current_request', '?')} → [green]{cpu.get('recommended_request', '?')}[/green]",
+                f"[green]{cpu.get('savings_percent', '?')}[/green]",
+                f"{memory.get('current_request', 'None')} → [green]{memory.get('recommended_request', 'None')}[/green]",
+                f"[green]{memory.get('savings_percent', 'None')}[/green]"
+            )
+            
+            if verbose and container.get('warnings'):
+                for warning in container['warnings']:
+                    table.add_row("", f"[yellow]⚠ {warning}[/yellow]", "", "", "", "")
+    
+    console.print(table)
+
+if __name__ == "__main__":
+    cli()
