@@ -13,9 +13,24 @@ spec:
         cpu: "1000m"
 ---
 apiVersion: v1
+kind: Service
+metadata:
+  name: zero-request-service
+spec:
+  selector:
+    app: zero-request
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+---
+apiVersion: v1
 kind: Pod
 metadata:
   name: normal-pod
+  labels:
+    app: normal-pod
 spec:
   containers:
   - name: nginx
@@ -27,3 +42,16 @@ spec:
       limits:
         cpu: "1000m"
         memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: normal-pod-service
+spec:
+  selector:
+    app: normal-pod
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
