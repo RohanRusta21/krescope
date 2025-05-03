@@ -2,3 +2,6 @@ k8s_recommender.egg-info/
 
 # Ignore all .egg-info directories
 *.egg-info/
+
+# Ignore all __pycache__ directories
+__pycache__/
