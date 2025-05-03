@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "krescope"
+version = "1.0.0"
+description = "Kubernetes Resource Optimizer - Analyze & recommend CPU/Memory requests/limits"
+readme = "README.md"
+authors = [{ name = "Rohan Rustagi", email = "rohanus98@gmail.com" }]
+license = { text = "MIT" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Systems Administration",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "kubernetes>=24.2.0",
+    "click>=8.0.0",
+    "typing-extensions>=4.0",
+    "rich>=12.0.0",
+]
+
+[project.scripts]
+krescope = "krescope.cli:cli"  # Makes `krescope` command available
