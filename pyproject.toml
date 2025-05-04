@@ -7,7 +7,7 @@ name = "krescope"
 version = "1.0.0"
 description = "Kubernetes Resource Optimizer - Analyze & recommend CPU/Memory requests/limits"
 readme = "README.md"
-authors = [{ name = "Rohan Rustagi", email = "rohanus98@gmail.com" }]
+authors = [{ name = "Rohan Rustagi" }]
 license = { text = "MIT" }
 classifiers = [
     "Development Status :: 4 - Beta",
