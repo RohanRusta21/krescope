@@ -8,7 +8,7 @@ pip install krescope
 ```
 
 ## 📦 Install if metric-server not installed/enabled
-```
+```sh
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 ```
 
@@ -19,7 +19,23 @@ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/late
 - Supports watch mode (--watch)
 ```
 
-## 🚀 Usage
+## 🚀 Usage : To analyze cpu and memory limits/requests with current usage by application in specific namespace
+```sh
+krescope analyze --namespace=<your_namespace>
 ```
-krescope analyze --namespace=default
+
+## 🚀 Usage : To analyze cpu and memory limits/requests with current usage by application in watch mode by giving custom time interval (in seconds)
+```sh
+krescope analyze --namespace=<your_namespace> --watch INTEGER
+```
+
+## 🚀 Usage : To get details in specific output format like json and text 
+```sh
+krescope analyze --namespace=<your_namespace> --output json
+krescope analyze --namespace=<your_namespace> --output text
+```
+
+## 🚀 Usage : To get detailed information in verbose format
+```sh
+krescope analyze --verbose
 ```

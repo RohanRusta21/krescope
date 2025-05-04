@@ -20,7 +20,7 @@ def cli():
 
 @cli.command()
 @click.option("--namespace", default="default", help="Namespace to analyze")
-@click.option("--output", type=click.Choice(["text", "json"]), default="text")
+@click.option("--output", type=click.Choice(["text", "json"]), default="text", help="Output format")
 @click.option("--verbose", is_flag=True, help="Show detailed information")
 @click.option("--watch", required=False, is_flag=False, flag_value=5,type=int, default=None, help="Continuously watch for changes, optionally provide interval in seconds")
 def analyze(namespace, output, verbose, watch):
