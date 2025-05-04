@@ -20,7 +20,7 @@ def cli():
 @click.option("--namespace", default="default", help="Namespace to analyze")
 @click.option("--output", type=click.Choice(["text", "json"]), default="text")
 @click.option("--verbose", is_flag=True, help="Show detailed information")
-@click.option("--watch", is_flag=True, help="Continuously watch for changes")
+@click.option("--watch", required=False, is_flag=False, flag_value=5,type=int, default=None, help="Continuously watch for changes, optionally provide interval in seconds")
 def analyze(namespace, output, verbose, watch):
     """Analyze resource usage and suggest optimizations."""
     try:
@@ -34,12 +34,12 @@ def analyze(namespace, output, verbose, watch):
                 console.clear()  # Clear screen for watch mode
                 _print_human_output(recommendations, verbose)
 
-        if watch:
+        if watch is not None:
             import time
-            console.print("[yellow]Watch mode enabled. Press Ctrl+C to stop.[/yellow]\n")
+            console.print(f"[yellow]Watch mode enabled. Updating every {watch} seconds. Press Ctrl+C to stop.[/yellow]\n")
             while True:
                 run_analysis()
-                time.sleep(5)  # Update every 5 seconds
+                time.sleep(watch)  # Update every 5 seconds
         else:
             run_analysis()
             
