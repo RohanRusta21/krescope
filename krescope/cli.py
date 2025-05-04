@@ -8,10 +8,12 @@ from .analyzer import ResourceAnalyzer
 from .k8s_client import K8sClient
 from .exceptions import MetricsServerNotInstalled, KrescopeError
 from .models import PodRecommendation
+from krescope.version import __version__
 
 console = Console()
 
 @click.group()
+@click.version_option(__version__, prog_name="K8s Resource Recommender")
 def cli():
     """K8s Resource Recommender - Optimize your Kubernetes resources."""
     pass
